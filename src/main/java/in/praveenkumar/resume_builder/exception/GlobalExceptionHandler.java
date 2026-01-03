@@ -1,5 +1,6 @@
 package in.praveenkumar.resume_builder.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,9 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException exception){
+        log.info("Inside GlobalExceptionHandler - handleValidationExceptions()");
         Map<String, String> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error->{
             String fieldName = ((FieldError)error).getField();
@@ -30,6 +33,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceExistsException.class)
     public ResponseEntity<Map<String,Object>> handleResourceExistsException(ResourceExistsException e){
+        log.info("Inside GlobalExceptionHandler - handleResourceExistsException()");
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Resource Exists");
         response.put("error", e.getMessage());
@@ -39,6 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex){
+        log.info("Inside GlobalExceptionHandler - handleGenericException()");
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Something went wrong. Contact Administrator!");
         response.put("errors", ex.getMessage());
