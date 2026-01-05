@@ -6,6 +6,7 @@ import in.praveenkumar.resume_builder.dto.LoginRequest;
 import in.praveenkumar.resume_builder.dto.RegisterRequest;
 import in.praveenkumar.resume_builder.exception.ResourceExistsException;
 import in.praveenkumar.resume_builder.repository.UserRepository;
+import in.praveenkumar.resume_builder.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Value("${app.base.url:http://localhost:8000}")
     private String appBaseUrl;
@@ -117,11 +119,32 @@ public class AuthService {
             throw new RuntimeException("Please Verify your email before logging in.");
         }
 
-        String token = "jwtToken";
+        String token = jwtUtil.generateToken(existingUser.getId());
 
         AuthResponse response = toResponse(existingUser);
         response.setToken(token);
 
         return response;
+    }
+
+    public void resendVerification(String email) {
+        //Step 1: Find the user account by email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("User not found"));
+
+        //Step 2: check the email is verified
+        if(user.isEmailVerified()){
+            throw new RuntimeException("Email is already verified.");
+        }
+
+        //Step 3: Set the new verification token and expires time
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerificationExpires(LocalDateTime.now().plusHours(24));
+
+        //Step 4: Update the user
+        userRepository.save(user);
+
+        //Step 5: Resend the verification email
+        sendVerificationEmail(user);
     }
 }
