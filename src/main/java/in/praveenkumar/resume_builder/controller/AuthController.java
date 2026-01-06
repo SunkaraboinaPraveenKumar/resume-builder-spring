@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,5 +79,18 @@ public class AuthController {
 
         //Step 4: Return the response
         return ResponseEntity.ok(Map.of("success",true,"message","Verification email sent"));
+    }
+
+
+    @GetMapping(GET_PROFILE)
+    public ResponseEntity<?> getProfile(Authentication authentication){
+        //Step 1: Get the principal object
+        Object principalObject =  authentication.getPrincipal();
+
+        //Step 2: call the service method
+        AuthResponse currentProfile = authService.getProfile(principalObject);
+
+        //Step 3: return the response
+        return ResponseEntity.ok(currentProfile);
     }
 }
