@@ -24,4 +24,14 @@ public class AppConstants {
     public static final String PREMIUM = "premium";
 
     public static  final String GET_TEMPLATES = "/api/templates";
+
+    public static final String PAYMENT = "/api/payment";
+
+    public static final String CREATE_ORDER = "/create-order";
+
+    public static final String VERIFY = "/verify";
+
+    public static final String HISTORY = "/history";
+
+    public static final String GET_ORDER = "/order/{orderId}";
 }
